@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'package:flutter_playground/data/models/movie.dart';
+import 'package:flutter_playground/data/models/tv_show.dart';
 import '../../core/config/secrets.dart';
 import '../../core/constants/api_constants.dart';
 
@@ -62,34 +64,33 @@ class TmdbService {
   }
 
   // ---------- Movies ----------
-  Future<List<Map<String, dynamic>>> getTrendingMovies() =>
-      _getList('/trending/movie/day');
+  Future<List<Movie>> _movies(String path) async {
+    final list = await _getList(path);
+    return list.map(Movie.fromJson).toList();
+  }
 
-  Future<List<Map<String, dynamic>>> getTopRatedMovies() =>
-      _getList('/movie/top_rated');
+  Future<List<Movie>> getTrendingMovies() => _movies('/trending/movie/day');
+  Future<List<Movie>> getTopRatedMovies() => _movies('/movie/top_rated');
+  Future<List<Movie>> getUpcomingMovies() => _movies('/movie/upcoming');
+  Future<List<Movie>> getNowPlayingMovies() => _movies('/movie/now_playing');
 
-  Future<List<Map<String, dynamic>>> getUpcomingMovies() =>
-      _getList('/movie/upcoming');
-
-  Future<List<Map<String, dynamic>>> getNowPlayingMovies() =>
-      _getList('/movie/now_playing');
+  Future<Movie> getMovieDetail(int id) async => Movie.fromJson(await _get('/movie/$id'));
 
   // ---------- TV Shows ----------
-  Future<List<Map<String, dynamic>>> getPopularTvShows() =>
-      _getList('/tv/popular');
+  Future<List<TvShow>> _tvShows(String path) async {
+    final list = await _getList(path);
+    return list.map(TvShow.fromJson).toList();
+  }
 
-  Future<List<Map<String, dynamic>>> getTopRatedTvShows() =>
-      _getList('/tv/top_rated');
+  Future<List<TvShow>> getPopularTvShows() => _tvShows('/tv/popular');
+  Future<List<TvShow>> getTopRatedTvShows() => _tvShows('/tv/top_rated');
+
+  Future<TvShow> getTvDetail(int id) async =>
+      TvShow.fromJson(await _get('/tv/$id'));
 
   // ---------- Search ----------
-  /// Cari film, TV, dan orang sekaligus.
   Future<List<Map<String, dynamic>>> searchMulti(String query) =>
       _getList('/search/multi', {'query': query});
-
-  // ---------- Detail ----------
-  Future<Map<String, dynamic>> getMovieDetail(int id) => _get('/movie/$id');
-
-  Future<Map<String, dynamic>> getTvDetail(int id) => _get('/tv/$id');
 
   void dispose() => _client.close();
 }

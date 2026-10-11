@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_playground/core/theme/app_theme.dart';
 import 'package:flutter_playground/data/services/tmdb_service.dart';
+import 'package:flutter_playground/data/models/movie.dart';
 
 void main() {
   runApp(const IMShoyo());
@@ -30,7 +32,7 @@ class _ApiTestScreen extends StatefulWidget {
 
 class _ApiTestScreenState extends State<_ApiTestScreen> {
   final _service = TmdbService();
-  late final Future<List<Map<String, dynamic>>> _future;
+  late final Future<List<Movie>> _future;
 
   @override
   void initState() {
@@ -41,8 +43,8 @@ class _ApiTestScreenState extends State<_ApiTestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tes API TMDB')),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      appBar: AppBar(title: const Text('IMShoyo')),
+      body: FutureBuilder<List<Movie>>(
         future: _future,
         builder:(context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -60,10 +62,23 @@ class _ApiTestScreenState extends State<_ApiTestScreen> {
           return ListView.builder(
             itemCount: movies.length,
             itemBuilder: (context, i) {
-              final m = movies[i];
+              final movie = movies[i];
               return ListTile(
-                title: Text(m['title'] ?? '-'),
-                subtitle: Text('Rating: ${m['vote_average']}'),
+                leading: SizedBox(
+                  width: 44,
+                  child: movie.posterUrl.isEmpty
+                      ? const Icon(Icons.movie)
+                      : CachedNetworkImage(
+                          imageUrl: movie.posterUrl,
+                          fit: BoxFit.cover  
+                        ),
+                ),
+                title: Text(movie.title),
+                subtitle: Text(
+                  '${movie.year} • ${movie.genreText}\n'
+                  '★ ${movie.ratingText} • ${movie.votesText}',
+                ),
+                isThreeLine: true,
               );
             }
           );

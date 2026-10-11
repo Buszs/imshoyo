@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_playground/core/theme/app_colors.dart';
 import 'package:flutter_playground/core/theme/app_theme.dart';
+import 'package:flutter_playground/data/services/tmdb_service.dart';
 
 void main() {
   runApp(const IMShoyo());
@@ -16,43 +16,58 @@ class IMShoyo extends StatelessWidget {
       title: 'IMShoyo',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: const _PlaceholderScreen(),
+      home: const _ApiTestScreen(),
     );
   }
 }
 
-class _PlaceholderScreen extends StatelessWidget {
-  const _PlaceholderScreen();
+class _ApiTestScreen extends StatefulWidget {
+  const _ApiTestScreen();
+
+  @override
+  State<_ApiTestScreen> createState() => _ApiTestScreenState();
+}
+
+class _ApiTestScreenState extends State<_ApiTestScreen> {
+  final _service = TmdbService();
+  late final Future<List<Map<String, dynamic>>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _service.getTrendingMovies();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    final text = Theme.of(context).textTheme;
-
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('IMShoyo', style: text.headlineLarge),
-            const SizedBox(height: 8),
-            Text('Movies, TV Shows, Actors', style: text.bodySmall),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.tertiaryFixed,
-                borderRadius: BorderRadius.circular(999),
+      appBar: AppBar(title: const Text('Tes API TMDB')),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _future,
+        builder:(context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Error: ${snapshot.error}'),
               ),
-              child: Text(
-                'Watch Trailer',
-                style: text.labelLarge?.copyWith(
-                  color: AppColors.onTertiaryFixed,
-                ),
-              ),
-            ),
-          ],
-        ),
+            );
+          }
+          final movies = snapshot.data!;
+          return ListView.builder(
+            itemCount: movies.length,
+            itemBuilder: (context, i) {
+              final m = movies[i];
+              return ListTile(
+                title: Text(m['title'] ?? '-'),
+                subtitle: Text('Rating: ${m['vote_average']}'),
+              );
+            }
+          );
+        },
       )
     );
   }

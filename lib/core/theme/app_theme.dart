@@ -6,11 +6,8 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get dark {
-    final baseText = GoogleFonts.interTextTheme(
-      ThemeData.dark().textTheme,
-    ).apply(bodyColor: AppColors.onSurface, displayColor: AppColors.onSurface);
-
-    final textTheme = baseText.copyWith(
+    final textTheme = TextTheme(
+      // Judul: Plus Jakarta Sans
       headlineLarge: GoogleFonts.plusJakartaSans(
         fontSize: 26,
         fontWeight: FontWeight.w700,
@@ -28,26 +25,36 @@ class AppTheme {
         fontWeight: FontWeight.w600,
         color: AppColors.onSurface,
       ),
+      // Label: Plus Jakarta Sans
       labelLarge: GoogleFonts.plusJakartaSans(
         fontSize: 14,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.14,
+        color: AppColors.onSurface,
       ),
       labelMedium: GoogleFonts.plusJakartaSans(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.24,
+        color: AppColors.onSurface,
       ),
       labelSmall: GoogleFonts.plusJakartaSans(
         fontSize: 11,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.44,
+        color: AppColors.onSurface,
       ),
+      // Teks biasa: Inter
       bodyLarge: GoogleFonts.inter(fontSize: 16, color: AppColors.onSurface),
       bodyMedium: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurface),
       bodySmall: GoogleFonts.inter(
         fontSize: 12,
         color: AppColors.onSurfaceVariant,
+      ),
+      titleMedium: GoogleFonts.inter(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: AppColors.onSurface,
       ),
     );
 

@@ -8,7 +8,6 @@ import 'package:flutter_playground/widgets/ranked_movie_tile.dart';
 import 'package:flutter_playground/widgets/section_widgets.dart';
 import 'package:flutter_playground/widgets/tv_show_card.dart';
 
-import '../core/theme/app_colors.dart';
 import '../widgets/category_chips.dart';
 import '../widgets/home_header.dart';
 

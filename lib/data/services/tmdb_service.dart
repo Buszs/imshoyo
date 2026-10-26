@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:flutter_playground/data/models/movie.dart';
 import 'package:flutter_playground/data/models/tv_show.dart';
+
 import '../../core/config/secrets.dart';
 import '../../core/constants/api_constants.dart';
 
@@ -22,7 +23,6 @@ class TmdbService {
 
   TmdbService({http.Client? client}) : _client = client ?? http.Client();
 
-  /// Fungsi dasar: semua request lewat sini.
   Future<Map<String, dynamic>> _get(
     String path, [
     Map<String, String>? params,
@@ -64,8 +64,11 @@ class TmdbService {
   }
 
   // ---------- Movies ----------
-  Future<List<Movie>> _movies(String path) async {
-    final list = await _getList(path);
+  Future<List<Movie>> _movies(
+    String path, [
+    Map<String, String>? params,
+  ]) async {
+    final list = await _getList(path, params);
     return list.map(Movie.fromJson).toList();
   }
 
@@ -74,16 +77,32 @@ class TmdbService {
   Future<List<Movie>> getUpcomingMovies() => _movies('/movie/upcoming');
   Future<List<Movie>> getNowPlayingMovies() => _movies('/movie/now_playing');
 
-  Future<Movie> getMovieDetail(int id) async => Movie.fromJson(await _get('/movie/$id'));
+  Future<List<Movie>> getAnimeMovies() => _movies('/discover/movie', {
+    'with_genres': '16',
+    'with_original_language': 'ja',
+    'sort_by': 'popularity.desc',
+  });
+
+  Future<Movie> getMovieDetail(int id) async =>
+      Movie.fromJson(await _get('/movie/$id'));
 
   // ---------- TV Shows ----------
-  Future<List<TvShow>> _tvShows(String path) async {
-    final list = await _getList(path);
+  Future<List<TvShow>> _tvShows(
+    String path, [
+    Map<String, String>? params,
+  ]) async {
+    final list = await _getList(path, params);
     return list.map(TvShow.fromJson).toList();
   }
 
   Future<List<TvShow>> getPopularTvShows() => _tvShows('/tv/popular');
   Future<List<TvShow>> getTopRatedTvShows() => _tvShows('/tv/top_rated');
+
+  Future<List<TvShow>> getAnimeTvShows() => _tvShows('/discover/tv', {
+    'with_genres': '16',
+    'with_original_language': 'ja',
+    'sort_by': 'popularity.desc',
+  });
 
   Future<TvShow> getTvDetail(int id) async =>
       TvShow.fromJson(await _get('/tv/$id'));

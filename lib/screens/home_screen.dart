@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_playground/core/utils/trailer_launcher.dart';
 import 'package:flutter_playground/data/models/movie.dart';
 import 'package:flutter_playground/data/models/tv_show.dart';
 import 'package:flutter_playground/data/services/tmdb_service.dart';
+import 'package:flutter_playground/screens/detail_screen.dart';
 import 'package:flutter_playground/widgets/hero_carousel.dart';
 import 'package:flutter_playground/widgets/movie_poster_card.dart';
 import 'package:flutter_playground/widgets/ranked_movie_tile.dart';
@@ -35,6 +37,25 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  void _openDetail(int id, {bool isTv = false}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DetailScreen(id: id, isTv: isTv),
+      ),
+    );
+  }
+
+  Future<void> _playTrailer(int id, {bool isTv = false}) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final key = await _service.getTrailerKey(id, isTv: isTv);
+      if (!mounted) return;
+      await openTrailer(context, key);
+    } on TmdbException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
   Widget _hero() {
     return AsyncSection(
       future: _cached('trending', _service.getTrendingMovies),
@@ -50,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.only(bottom: 16),
           child: HeroCarousel(
             movies: featured,
-            onTrailerTap: (m) => debugPrint('Trailer: ${m.title}'),
-            onMovieTap: (m) => debugPrint('Detail: ${m.title}'),
+            onTrailerTap: (m) => _playTrailer(m.id),
+            onMovieTap: (m) => _openDetail(m.id),
           ),
         );
       },
@@ -85,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     MoviePosterCard(
                       movie: items[i],
                       rank: showRank ? i + 1 : null,
-                      onTap: () => debugPrint('Detail: ${items[i].title}'),
+                      onTap: () => _openDetail(items[i].id),
                     ),
                 ],
               );
@@ -121,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   for (final show in items)
                     TvShowCard(
                       show: show,
-                      onTap: () => debugPrint('Detail TV: ${show.name}'),
+                      onTap: () => _openDetail(show.id, isTv: true),
                     ),
                 ],
               );
@@ -276,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onSelected: (c) => setState(() => _category = c),
                   ),
                   const SizedBox(height: 8),
-                  ..._content()
+                  ..._content(),
                 ],
               ),
             ),

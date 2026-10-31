@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_playground/data/models/media_detail.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_playground/data/models/movie.dart';
@@ -110,6 +111,22 @@ class TmdbService {
   // ---------- Search ----------
   Future<List<Map<String, dynamic>>> searchMulti(String query) =>
       _getList('/search/multi', {'query': query});
+
+  // ---------- Detail lengkap + trailer ----------
+  Future<MediaDetail> getMediaDetail(int id, {required bool isTv}) async {
+    final data = await _get('/${isTv ? 'tv' : 'movie'}/$id', {
+      'append_to_response': 'videos',
+      'include_video_language': 'en,null',
+    });
+    return MediaDetail.fromJson(data, isTv: isTv);
+  }
+
+  Future<String?> getTrailerKey(int id, {required bool isTv}) async {
+    final data = await _get('/${isTv ? 'tv' : 'movie'}/$id/videos');
+    final videos = (data['results'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+    return MediaDetail.pickTrailerKey(videos);
+  }
 
   void dispose() => _client.close();
 }
